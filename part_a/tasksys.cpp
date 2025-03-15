@@ -1,5 +1,10 @@
 #include "tasksys.h"
-
+////  Adding respective Lib
+#include<iostream>
+#include<string>
+#include<vector>
+#include<thread>
+using namespace std;
 
 IRunnable::~IRunnable() {}
 
@@ -17,6 +22,7 @@ const char* TaskSystemSerial::name() {
 }
 
 TaskSystemSerial::TaskSystemSerial(int num_threads): ITaskSystem(num_threads) {
+
 }
 
 TaskSystemSerial::~TaskSystemSerial() {}
@@ -68,8 +74,25 @@ void TaskSystemParallelSpawn::run(IRunnable* runnable, int num_total_tasks) {
     // tasks sequentially on the calling thread.
     //
 
-    for (int i = 0; i < num_total_tasks; i++) {
-        runnable->runTask(i, num_total_tasks);
+    // for (int i = 0; i < num_total_tasks; i++) {
+    //     runnable->runTask(i, num_total_tasks);
+    // }
+
+    ///// Now I am implementing my Logic for  Task Parallel with Spawn
+    vector<thread> threadsarr;     // Making array for threads
+
+    //// Now Spawn new thread for each task
+    for(int i = 0; i < num_total_tasks; i++)
+    {
+        threadsarr.push_back(thread([i, runnable, num_total_tasks](){
+            runnable->runTask(i, num_total_tasks);
+        }));
+    }
+
+    /// Waiting for each thred
+    for(auto& t : threadsarr)
+    {
+        t.join();
     }
 }
 

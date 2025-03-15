@@ -38,6 +38,7 @@ class ITaskSystem {
           will return only when the execution of all tasks is
           complete.
         */
+        //  This run Function is responsible for executinh task in BUlk
         virtual void run(IRunnable* runnable, int num_total_tasks) = 0;
 
         /*
@@ -58,6 +59,7 @@ class ITaskSystem {
           runAsnycWithDeps() to specify a dependency of some future
           bulk task launch on this bulk task launch.
          */
+        ///// This runAsync Responsible to run rask Asyn but with dependency
         virtual TaskID runAsyncWithDeps(IRunnable* runnable, int num_total_tasks,
                                         const std::vector<TaskID>& deps) = 0;
 
