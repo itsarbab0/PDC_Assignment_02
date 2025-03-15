@@ -4,6 +4,7 @@
 #include<string>
 #include<vector>
 #include<thread>
+#include<mutex>
 using namespace std;
 
 IRunnable::~IRunnable() {}
@@ -137,9 +138,45 @@ void TaskSystemParallelThreadPoolSpinning::run(IRunnable* runnable, int num_tota
     // tasks sequentially on the calling thread.
     //
 
-    for (int i = 0; i < num_total_tasks; i++) {
-        runnable->runTask(i, num_total_tasks);
+    // for (int i = 0; i < num_total_tasks; i++) {
+    //     runnable->runTask(i, num_total_tasks);
+    // }
+
+    ///// Now here is my Logoc for TaskSysParalell Thread Pool Spi
+
+    vector<thread> threadsarr;
+    mutex mtxlock;
+    bool taskDone = false;
+    for(int i = 0; i < num_total_tasks; i++)
+    {
+        threadsarr.push_back(thread([&mtxlock, taskDone, this, runnable, num_total_tasks](){
+            while(true)
+            {
+                lock_guard<mutex> lock(mtxlock);
+                if(taskDone)
+                {
+                    break;
+                }
+
+                for(int taskid = 0; taskid < num_total_tasks; taskid++)
+                {
+                    runnable->runTask(taskid, num_total_tasks);
+                }
+            }
+        }));
     }
+
+    {
+        lock_guard<mutex> lock(mtxlock);
+        taskDone = true;
+    }
+
+    for(auto& t : threadsarr)
+    {
+        t.join();
+    }
+
+
 }
 
 TaskID TaskSystemParallelThreadPoolSpinning::runAsyncWithDeps(IRunnable* runnable, int num_total_tasks,
