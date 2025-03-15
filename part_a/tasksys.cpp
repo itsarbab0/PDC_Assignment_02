@@ -5,6 +5,7 @@
 #include<vector>
 #include<thread>
 #include<mutex>
+#include<condition_variable>
 using namespace std;
 
 IRunnable::~IRunnable() {}
@@ -227,9 +228,43 @@ void TaskSystemParallelThreadPoolSleeping::run(IRunnable* runnable, int num_tota
     // tasks sequentially on the calling thread.
     //
 
-    for (int i = 0; i < num_total_tasks; i++) {
-        runnable->runTask(i, num_total_tasks);
+    // for (int i = 0; i < num_total_tasks; i++) {
+    //     runnable->runTask(i, num_total_tasks);
+    // }
+
+    //// Now here I am Implenting  my Logic for TaskSysParalell Thread Pool Sleep
+
+    vector<thread> threadsarr;
+    mutex mtxlock;
+    condition_variable vari;
+    bool taskDone = false;
+    for(int i = 0; i < num_total_tasks; i++)
+    {
+        threadsarr.push_back(thread([&vari, &mtxlock, &taskDone, this, runnable, num_total_tasks]()
+        {
+            unique_lock<mutex> lock(mtxlock);
+            while(!taskDone)
+            {
+                vari.wait(lock);
+                for(int taskid = 0; taskid < num_total_tasks; taskid++)
+                {
+                    runnable->runTask(taskid, num_total_tasks);
+                }
+            }
+        }));
     }
+
+    {
+        lock_guard<mutex> lock(mtxlock);
+        taskDone = true;
+    }
+    vari.notify_all();
+
+    for(auto& t : threadsarr)
+    {
+        t.join();
+    }
+
 }
 
 TaskID TaskSystemParallelThreadPoolSleeping::runAsyncWithDeps(IRunnable* runnable, int num_total_tasks,
