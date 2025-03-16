@@ -265,7 +265,7 @@ void TaskSystemParallelThreadPoolSpinning::run(IRunnable* runnable, int num_tota
                 int tasid = tq.front();
                 tq.pop();
                 lock.unlock();
-                runnable
+                runnable->runTask(tasid, num_total_tasks);
             }
         }));
     }
