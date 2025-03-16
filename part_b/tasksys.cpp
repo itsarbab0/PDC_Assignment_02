@@ -174,8 +174,7 @@ void TaskSystemParallelThreadPoolSpinning::run(IRunnable *runnable, int num_tota
     }
 }
 
-TaskID TaskSystemParallelThreadPoolSpinning::runAsyncWithDeps(IRunnable *runnable, int num_total_tasks,
-                                                              const vector<TaskID> &deps)
+TaskID TaskSystemParallelThreadPoolSpinning::runAsyncWithDeps(IRunnable *runnable, int num_total_tasks, const vector<TaskID> &deps)
 {
     static TaskID nextTaskID = 0;
     TaskID currentTaskID = nextTaskID++;
