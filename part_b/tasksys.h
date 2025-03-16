@@ -4,6 +4,7 @@
 #include "itasksys.h"
 #include<mutex>
 #include<condition_variable>
+using namespace std;
 /*
  * TaskSystemSerial: This class is the student's implementation of a
  * serial task execution engine.  See definition of ITaskSystem in
